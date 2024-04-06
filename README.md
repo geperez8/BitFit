@@ -4,7 +4,7 @@ Submitted by: Gerardo Perez
 
 BitFit is a health metrics app that allows users to track Calories
 
-Time spent: 3 hours spent in total
+Time spent: 5 hours spent in total
 
 ## Required Features
 
