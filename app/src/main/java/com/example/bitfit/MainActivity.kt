@@ -1,61 +1,45 @@
 package com.example.bitfit
 
-import android.content.Intent
+
 import android.os.Bundle
-import android.widget.Button
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
-    private val foods = ArrayList<DisplayFood>()
-    private lateinit var foodsRecyclerView: RecyclerView
-    private lateinit var addNewFoodButton : Button
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
-        // declare the variables associated with this class
-        foodsRecyclerView = findViewById(R.id.foods)
+        // define your fragments here
+        val fragment1: Fragment = BitFitFragment()
+        val fragment2: Fragment = FoodFormFragment()
+        val fragment3: Fragment = DashboardFragment()
 
-        addNewFoodButton = findViewById(R.id.addFoodButton)
+        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
 
-        addNewFoodButton.setOnClickListener {
-            val intent = Intent(this, FoodsActivity::class.java)
-            this.startActivity(intent)
-        }
-
-        val foodAdapter = FoodAdapter(this, foods)
-        foodsRecyclerView.adapter = foodAdapter
-
-        foodsRecyclerView.layoutManager = LinearLayoutManager(this)
-
-        lifecycleScope.launch {
-            (application as FoodsApplication).db.foodDao().getAll().collect { databaseList ->
-                databaseList.map { entity ->
-                    DisplayFood(
-                        entity.name,
-                        entity.calories
-                    )
-                }.also { mappedList ->
-                    foods.addAll(mappedList)
-                    foodAdapter.notifyDataSetChanged()
-                }
+        // handle navigation selection
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            lateinit var fragment: Fragment
+            when (item.itemId) {
+                R.id.nav_foods -> fragment = fragment1
+                R.id.nav_adder -> fragment = fragment2
+                R.id.nav_dashboard -> fragment = fragment3
             }
+            replaceFragment(fragment)
+            true
         }
+
+        // Set default selection
+        bottomNavigationView.selectedItemId = R.id.nav_foods
+    }
+
+    private fun replaceFragment(articleListFragment: Fragment) {
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.food_frame_layout, articleListFragment)
+        fragmentTransaction.commit()
     }
 }
